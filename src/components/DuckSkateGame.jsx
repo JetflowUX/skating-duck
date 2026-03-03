@@ -1,10 +1,10 @@
 import React, { Suspense, useRef, useState, useMemo, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { 
-  PerspectiveCamera, 
-  OrbitControls, 
-  Environment, 
-  Float, 
+import {
+  PerspectiveCamera,
+  OrbitControls,
+  Environment,
+  Float,
   Text,
   MeshDistortMaterial,
   GradientTexture
@@ -21,17 +21,17 @@ const SPAWN_INTERVAL = 1.2; // seconds
 function Duck({ targetX, isGameOver }) {
   const meshRef = useRef();
   const skateRef = useRef();
-  
+
   useFrame((state, delta) => {
     if (isGameOver) return;
-    
+
     // Smooth movement
     meshRef.current.position.x = THREE.MathUtils.lerp(
       meshRef.current.position.x,
       targetX,
       0.1
     );
-    
+
     // Tilt based on movement
     const tilt = (targetX - meshRef.current.position.x) * 0.3;
     meshRef.current.rotation.z = THREE.MathUtils.lerp(meshRef.current.rotation.z, -tilt, 0.1);
@@ -105,7 +105,7 @@ function Duck({ targetX, isGameOver }) {
 
 function Obstacle({ type, position, onHit }) {
   const ref = useRef();
-  
+
   useFrame((state, delta) => {
     if (ref.current) {
       ref.current.position.z += 15 * delta; // Speed
@@ -199,25 +199,8 @@ function EnvironmentDecorations() {
   );
 }
 
-export default function DuckSkateGame() {
-  const [targetX, setTargetX] = useState(0);
-  const [score, setScore] = useState(0);
-  const [speed, setSpeed] = useState(1);
-  const [isGameOver, setIsGameOver] = useState(false);
-  const [obstacles, setObstacles] = useState([]);
+function GameLogic({ isGameOver, setIsGameOver, score, setScore, speed, setSpeed, targetX, obstacles, setObstacles, duckPos }) {
   const lastSpawn = useRef(0);
-  const duckPos = useRef(0);
-
-  const handleMouseMove = (e) => {
-    const x = (e.clientX / window.innerWidth) * 2 - 1;
-    setTargetX(x * (ROAD_WIDTH / 2));
-    duckPos.current = x * (ROAD_WIDTH / 2);
-  };
-
-  useEffect(() => {
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
 
   useFrame((state, delta) => {
     if (isGameOver) return;
@@ -260,6 +243,28 @@ export default function DuckSkateGame() {
     });
   });
 
+  return null;
+}
+
+export default function DuckSkateGame() {
+  const [targetX, setTargetX] = useState(0);
+  const [score, setScore] = useState(0);
+  const [speed, setSpeed] = useState(1);
+  const [isGameOver, setIsGameOver] = useState(false);
+  const [obstacles, setObstacles] = useState([]);
+  const duckPos = useRef(0);
+
+  const handleMouseMove = (e) => {
+    const x = (e.clientX / window.innerWidth) * 2 - 1;
+    setTargetX(x * (ROAD_WIDTH / 2));
+    duckPos.current = x * (ROAD_WIDTH / 2);
+  };
+
+  useEffect(() => {
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
   return (
     <div className="game-shell" style={{ width: "100vw", height: "100vh", background: "#d8f3ff" }}>
       <Canvas shadows>
@@ -267,6 +272,18 @@ export default function DuckSkateGame() {
         <ambientLight intensity={0.7} />
         <pointLight position={[10, 10, 10]} intensity={1} castShadow />
         <Suspense fallback={null}>
+          <GameLogic
+            isGameOver={isGameOver}
+            setIsGameOver={setIsGameOver}
+            score={score}
+            setScore={setScore}
+            speed={speed}
+            setSpeed={setSpeed}
+            targetX={targetX}
+            obstacles={obstacles}
+            setObstacles={setObstacles}
+            duckPos={duckPos}
+          />
           <Duck targetX={targetX} isGameOver={isGameOver} />
           {obstacles.map(o => (
             <Obstacle key={o.id} type={o.type} position={o.position} />
