@@ -75,26 +75,54 @@ body {
 .panel button:hover {
   filter: brightness(1.06);
 }
+
 .hud {
   position: absolute;
-  top: 20px;
+  top: 0;
   left: 0;
   right: 0;
+  height: 60px;
+  background: linear-gradient(180deg, #1e3a8a 0%, #1e40af 100%);
   display: flex;
   justify-content: space-between;
-  padding: 0 40px;
+  align-items: center;
+  padding: 0 30px;
   pointer-events: none;
+  z-index: 10;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  border-bottom: 2px solid #3b82f6;
+}
+
+@media (max-width: 600px) {
+  .hud {
+    padding: 0 15px;
+    height: 50px;
+  }
 }
 
 .stat {
-  font-size: 24px;
-  font-weight: 800;
-  color: #0f3556;
-  text-shadow: 2px 2px 0px rgba(255, 255, 255, 0.8);
-  background: rgba(255, 255, 255, 0.3);
-  padding: 8px 16px;
-  border-radius: 12px;
-  -webkit-backdrop-filter: blur(4px);
-  backdrop-filter: blur(4px);
-  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  font-family: 'Fredoka One', 'Varela Round', sans-serif;
+  /* Gamey rounded font */
+  font-size: clamp(16px, 4vw, 28px);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.stat.score {
+  color: #facc15;
+  /* Bright yellow/green from image */
+  text-shadow: 2px 2px 0px #713f12;
+}
+
+.stat.speed {
+  color: #7dd3fc;
+  /* Light blue from image */
+  text-shadow: 2px 2px 0px #075985;
+}
+
+@media (max-width: 400px) {
+  .stat {
+    font-size: 14px;
+  }
 }

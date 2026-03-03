@@ -35,7 +35,8 @@ function Duck({ targetX, isGameOver }) {
     // Tilt based on movement
     const tilt = (targetX - meshRef.current.position.x) * 0.3;
     meshRef.current.rotation.z = THREE.MathUtils.lerp(meshRef.current.rotation.z, -tilt, 0.1);
-    meshRef.current.rotation.y = THREE.MathUtils.lerp(meshRef.current.rotation.y, tilt * 0.5, 0.1);
+    // Face the horizon (+Z)
+    meshRef.current.rotation.y = THREE.MathUtils.lerp(meshRef.current.rotation.y, Math.PI + tilt * 0.5, 0.1);
 
     // Skateboard wobble
     if (skateRef.current) {
@@ -48,23 +49,23 @@ function Duck({ targetX, isGameOver }) {
       {/* Skateboard */}
       <mesh ref={skateRef} position={[0, -0.4, 0]}>
         <boxGeometry args={[1.2, 0.15, 2.2]} />
-        <meshStandardMaterial color="#e74c3c" />
+        <meshStandardMaterial color="#ef4444" /> {/* Red deck */}
         {/* Wheels */}
         <mesh position={[-0.4, -0.15, 0.7]} rotation={[Math.PI / 2, 0, 0]}>
           <cylinderGeometry args={[0.2, 0.2, 0.2, 16]} />
-          <meshStandardMaterial color="#333" />
+          <meshStandardMaterial color="#3b82f6" /> {/* Blue wheels */}
         </mesh>
         <mesh position={[0.4, -0.15, 0.7]} rotation={[Math.PI / 2, 0, 0]}>
           <cylinderGeometry args={[0.2, 0.2, 0.2, 16]} />
-          <meshStandardMaterial color="#333" />
+          <meshStandardMaterial color="#3b82f6" />
         </mesh>
         <mesh position={[-0.4, -0.15, -0.7]} rotation={[Math.PI / 2, 0, 0]}>
           <cylinderGeometry args={[0.2, 0.2, 0.2, 16]} />
-          <meshStandardMaterial color="#333" />
+          <meshStandardMaterial color="#3b82f6" />
         </mesh>
         <mesh position={[0.4, -0.15, -0.7]} rotation={[Math.PI / 2, 0, 0]}>
           <cylinderGeometry args={[0.2, 0.2, 0.2, 16]} />
-          <meshStandardMaterial color="#333" />
+          <meshStandardMaterial color="#3b82f6" />
         </mesh>
       </mesh>
 
@@ -72,22 +73,27 @@ function Duck({ targetX, isGameOver }) {
       <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
         <mesh position={[0, 0.4, 0]}>
           <sphereGeometry args={[0.6, 32, 32]} />
-          <meshStandardMaterial color="#f1c40f" />
+          <meshStandardMaterial color="#fbbf24" /> {/* Vibrant Yellow */}
         </mesh>
         {/* Head */}
         <mesh position={[0, 1.1, 0.2]}>
           <sphereGeometry args={[0.45, 32, 32]} />
-          <meshStandardMaterial color="#f1c40f" />
+          <meshStandardMaterial color="#fbbf24" />
         </mesh>
         {/* Beak */}
         <mesh position={[0, 1.0, 0.65]}>
           <boxGeometry args={[0.3, 0.15, 0.4]} />
-          <meshStandardMaterial color="#e67e22" />
+          <meshStandardMaterial color="#f97316" />
         </mesh>
         {/* Helmet */}
         <mesh position={[0, 1.3, 0.2]} rotation={[-0.2, 0, 0]}>
           <sphereGeometry args={[0.48, 32, 32, 0, Math.PI * 2, 0, Math.PI / 2]} />
-          <meshStandardMaterial color="#3498db" />
+          <meshStandardMaterial color="#2563eb" /> {/* Solid Blue */}
+        </mesh>
+        {/* Helmet Strap */}
+        <mesh position={[0, 1.05, 0.2]} rotation={[0, 0, 0]}>
+          <torusGeometry args={[0.46, 0.03, 16, 32, Math.PI]} rotation={[0, 0, Math.PI]} />
+          <meshStandardMaterial color="#111" />
         </mesh>
         {/* Eyes */}
         <mesh position={[-0.15, 1.15, 0.58]}>
@@ -105,6 +111,7 @@ function Duck({ targetX, isGameOver }) {
 
 function Obstacle({ type, position, onHit }) {
   const ref = useRef();
+  const scarfColor = useMemo(() => Math.random() > 0.5 ? "#ef4444" : "#22c55e", []);
 
   useFrame((state, delta) => {
     if (ref.current) {
@@ -118,39 +125,85 @@ function Obstacle({ type, position, onHit }) {
   return (
     <group ref={ref} position={position}>
       {type === "cone" && (
-        <mesh rotation={[0, 0, 0]}>
-          <coneGeometry args={[0.5, 1.2, 16]} />
-          <meshStandardMaterial color="#e67e22" />
+        <group>
+          <mesh>
+            <coneGeometry args={[0.5, 1.2, 16]} />
+            <meshStandardMaterial color="#fb923c" />
+          </mesh>
+          <mesh position={[0, -0.1, 0]}>
+            <cylinderGeometry args={[0.4, 0.45, 0.2, 16]} />
+            <meshStandardMaterial color="white" />
+          </mesh>
           <mesh position={[0, -0.55, 0]}>
             <boxGeometry args={[1, 0.1, 1]} />
-            <meshStandardMaterial color="#e67e22" />
+            <meshStandardMaterial color="#fb923c" />
           </mesh>
-        </mesh>
+        </group>
       )}
       {type === "ice" && (
-        <mesh rotation={[Math.random(), Math.random(), Math.random()]}>
-          <icosahedronGeometry args={[0.6, 0]} />
-          <meshStandardMaterial color="#7ed6df" transparent opacity={0.8} />
-        </mesh>
+        <group>
+          <mesh position={[-0.3, 0, 0]} rotation={[0.2, 0, 0.2]}>
+            <coneGeometry args={[0.4, 1.2, 6]} />
+            <meshStandardMaterial color="#bae6fd" transparent opacity={0.9} />
+          </mesh>
+          <mesh position={[0.3, 0, 0.2]} rotation={[-0.2, 0, -0.1]}>
+            <coneGeometry args={[0.3, 0.8, 6]} />
+            <meshStandardMaterial color="#bae6fd" transparent opacity={0.9} />
+          </mesh>
+          <mesh position={[0, 0, -0.3]} rotation={[0.1, 0, 0]}>
+            <coneGeometry args={[0.3, 1.0, 6]} />
+            <meshStandardMaterial color="#bae6fd" transparent opacity={0.9} />
+          </mesh>
+        </group>
       )}
       {type === "penguin" && (
         <group scale={1.2}>
           <mesh position={[0, 0.3, 0]}>
             <sphereGeometry args={[0.4, 16, 16]} />
-            <meshStandardMaterial color="#2c3e50" />
+            <meshStandardMaterial color="#1e293b" />
           </mesh>
-          <mesh position={[0, 0.4, 0.1]}>
+          <mesh position={[0, 0.35, 0.1]}>
             <sphereGeometry args={[0.25, 16, 16]} />
             <meshStandardMaterial color="white" />
           </mesh>
           <mesh position={[0, 0.75, 0]}>
             <sphereGeometry args={[0.3, 16, 16]} />
-            <meshStandardMaterial color="#2c3e50" />
+            <meshStandardMaterial color="#1e293b" />
+          </mesh>
+          {/* Scarf */}
+          <mesh position={[0, 0.55, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[0.25, 0.08, 16, 32]} />
+            <meshStandardMaterial color={scarfColor} />
           </mesh>
           {/* Beak */}
           <mesh position={[0, 0.75, 0.3]}>
             <coneGeometry args={[0.05, 0.2, 4]} rotation={[Math.PI / 2, 0, 0]} />
-            <meshStandardMaterial color="#f39c12" />
+            <meshStandardMaterial color="#f59e0b" />
+          </mesh>
+        </group>
+      )}
+      {type === "barrel" && (
+        <group>
+          <mesh position={[0, 0.5, 0]}>
+            <cylinderGeometry args={[0.5, 0.5, 1.2, 16]} />
+            <meshStandardMaterial color="#78350f" />
+          </mesh>
+          {/* Snow top */}
+          <mesh position={[0, 1.15, 0]}>
+            <cylinderGeometry args={[0.55, 0.5, 0.2, 16]} />
+            <meshStandardMaterial color="white" />
+          </mesh>
+        </group>
+      )}
+      {type === "fish" && (
+        <group rotation={[Math.PI / 2, 0, Math.random()]} scale={0.5}>
+          <mesh>
+            <sphereGeometry args={[0.6, 16, 8]} />
+            <meshStandardMaterial color="#94a3b8" />
+          </mesh>
+          <mesh position={[-0.7, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+            <coneGeometry args={[0.3, 0.5, 3]} />
+            <meshStandardMaterial color="#94a3b8" />
           </mesh>
         </group>
       )}
@@ -161,7 +214,7 @@ function Obstacle({ type, position, onHit }) {
 function IceFloor() {
   const ref = useRef();
   useFrame((state, delta) => {
-    ref.current.offset.y -= 0.5 * delta;
+    ref.current.offset.y += 0.5 * delta;
   });
 
   return (
@@ -211,13 +264,13 @@ function GameLogic({ isGameOver, setIsGameOver, score, setScore, speed, setSpeed
     // Spawn obstacles
     if (state.clock.elapsedTime - lastSpawn.current > SPAWN_INTERVAL / speed) {
       lastSpawn.current = state.clock.elapsedTime;
-      const type = ["cone", "ice", "penguin"][Math.floor(Math.random() * 3)];
+      const type = ["cone", "ice", "penguin", "barrel", "fish"][Math.floor(Math.random() * 5)];
       setObstacles(prev => [
         ...prev,
         {
           id: Math.random(),
           type,
-          position: [(Math.random() - 0.5) * ROAD_WIDTH, 0.5, -60]
+          position: [(Math.random() - 0.5) * ROAD_WIDTH, 0.5, 60]
         }
       ]);
     }
@@ -226,7 +279,7 @@ function GameLogic({ isGameOver, setIsGameOver, score, setScore, speed, setSpeed
     setObstacles(prev => {
       const moved = prev.map(o => ({
         ...o,
-        position: [o.position[0], o.position[1], o.position[2] + GAME_SPEED_START * delta * speed]
+        position: [o.position[0], o.position[1], o.position[2] - GAME_SPEED_START * delta * speed]
       }));
 
       // Collision detection (simple distance based)
@@ -239,7 +292,7 @@ function GameLogic({ isGameOver, setIsGameOver, score, setScore, speed, setSpeed
         }
       });
 
-      return moved.filter(o => o.position[2] < 10);
+      return moved.filter(o => o.position[2] > -15);
     });
   });
 
@@ -253,22 +306,45 @@ export default function DuckSkateGame() {
   const [isGameOver, setIsGameOver] = useState(false);
   const [obstacles, setObstacles] = useState([]);
   const duckPos = useRef(0);
+  const [aspect, setAspect] = useState(window.innerWidth / window.innerHeight);
 
-  const handleMouseMove = (e) => {
-    const x = (e.clientX / window.innerWidth) * 2 - 1;
-    setTargetX(x * (ROAD_WIDTH / 2));
-    duckPos.current = x * (ROAD_WIDTH / 2);
+  const handleInput = (clientX) => {
+    const x = (clientX / window.innerWidth) * 2 - 1;
+    const scaledX = x * (ROAD_WIDTH / 2);
+    setTargetX(scaledX);
+    duckPos.current = scaledX;
+  };
+
+  const handleMouseMove = (e) => handleInput(e.clientX);
+  const handleTouchMove = (e) => {
+    if (e.touches && e.touches[0]) {
+      handleInput(e.touches[0].clientX);
+    }
+  };
+
+  const handleResize = () => {
+    setAspect(window.innerWidth / window.innerHeight);
   };
 
   useEffect(() => {
     window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
+    window.addEventListener("touchmove", handleTouchMove, { passive: true });
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
+  const cameraPosition = useMemo(() => {
+    return aspect < 1 ? [0, 6, -15] : [0, 4, -12];
+  }, [aspect]);
+
   return (
-    <div className="game-shell" style={{ width: "100vw", height: "100vh", background: "#d8f3ff" }}>
+    <div className="game-shell" style={{ width: "100vw", height: "100vh", background: "#d8f3ff", touchAction: "none" }}>
       <Canvas shadows>
-        <PerspectiveCamera makeDefault position={[0, 5, 8]} fov={50} />
+        <PerspectiveCamera makeDefault position={cameraPosition} rotation={[0, Math.PI, 0]} fov={aspect < 1 ? 75 : 65} />
         <ambientLight intensity={0.7} />
         <pointLight position={[10, 10, 10]} intensity={1} castShadow />
         <Suspense fallback={null}>
@@ -294,12 +370,12 @@ export default function DuckSkateGame() {
         </Suspense>
         {/* Sky background */}
         <color attach="background" args={["#b9e7ff"]} />
-        <fog attach="fog" args={["#b9e7ff", 20, 100]} />
+        <fog attach="fog" args={["#b9e7ff", 2, 120]} />
       </Canvas>
 
       <div className="hud">
-        <div className="stat">SCORE: {Math.floor(score)}</div>
-        <div className="stat">SPEED: {speed.toFixed(1)}</div>
+        <div className="stat score">SCORE: {Math.floor(score)}</div>
+        <div className="stat speed">SPEED: {speed.toFixed(1)}</div>
       </div>
 
       {isGameOver && (
