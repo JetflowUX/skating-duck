@@ -1,6 +1,6 @@
-import DuckSkateGame from "./components/DuckSkateGame";
+import GameScene from "./components/GameScene";
 import "./styles.css";
 
 export default function App() {
-  return <DuckSkateGame />;
+  return <GameScene />;
 }
