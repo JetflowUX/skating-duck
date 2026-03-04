@@ -35,7 +35,8 @@ function Player({ duckXRef, gameOver }) {
     if (!groupRef.current || gameOver) return;
 
     const targetX = state.mouse.x * (viewport.width / 2);
-    const clampedX = THREE.MathUtils.clamp(targetX, -LANE_WIDTH / 2, LANE_WIDTH / 2);
+    const laneHalf = Math.min(LANE_WIDTH / 2, Math.max(1.6, viewport.width * 0.35));
+    const clampedX = THREE.MathUtils.clamp(targetX, -laneHalf, laneHalf);
 
     groupRef.current.position.x = THREE.MathUtils.lerp(
       groupRef.current.position.x,
@@ -49,7 +50,7 @@ function Player({ duckXRef, gameOver }) {
   return (
     <group ref={groupRef} position={[0, 0.7, 0]}>
       <Skateboard />
-      <group position={[0, -0.28, 0]} scale={100} rotation={[0, Math.PI, 0]}>
+      <group position={[0, -0.28, 0]} scale={72} rotation={[0, Math.PI, 0]}>
         <Duck />
       </group>
     </group>
@@ -182,36 +183,21 @@ function HtmlScore({ score, speed, gameOver, onRestart }) {
         <div
           style={{
             position: "fixed",
-            top: 16,
-            left: 16,
-            right: 16,
+            top: "max(10px, env(safe-area-inset-top))",
+            left: "clamp(12px, 4vw, 28px)",
+            right: "clamp(12px, 4vw, 28px)",
             display: "flex",
             justifyContent: "space-between",
             color: "#facc15",
             fontWeight: 800,
-            fontSize: 28,
+            fontSize: "clamp(20px, 5vw, 46px)",
             fontFamily: "system-ui, sans-serif",
             textShadow: "0 2px 4px rgba(0,0,0,0.35)",
             pointerEvents: "none",
           }}
         >
           <span>SCORE: {score}</span>
-          <span style={{ color: "#93c5fd" }}>SPEED: {speed.toFixed(1)}x</span>
-        </div>
-
-        <div
-          style={{
-            position: "fixed",
-            top: 56,
-            width: "100%",
-            textAlign: "center",
-            color: "#e2e8f0",
-            fontWeight: 600,
-            fontFamily: "system-ui, sans-serif",
-            pointerEvents: "none",
-          }}
-        >
-          Move the mouse left/right to dodge obstacles
+          <span style={{ color: "#7dd3fc" }}>SPEED: {speed.toFixed(1)}</span>
         </div>
 
         {gameOver && (
@@ -224,13 +210,14 @@ function HtmlScore({ score, speed, gameOver, onRestart }) {
               justifyContent: "center",
               background: "rgba(15, 23, 42, 0.35)",
               pointerEvents: "auto",
+              padding: "clamp(12px, 4vw, 24px)",
             }}
           >
             <div
               style={{
-                minWidth: 280,
+                width: "min(520px, 92vw)",
                 borderRadius: 14,
-                padding: "20px 24px",
+                padding: "clamp(14px, 3vw, 20px) clamp(14px, 4vw, 24px)",
                 background: "#eff6ff",
                 border: "2px solid #7dd3fc",
                 textAlign: "center",
@@ -238,8 +225,8 @@ function HtmlScore({ score, speed, gameOver, onRestart }) {
                 boxShadow: "0 8px 30px rgba(0,0,0,0.2)",
               }}
             >
-              <div style={{ fontSize: 42, fontWeight: 900, color: "#1e3a8a", lineHeight: 1 }}>CRASHED!</div>
-              <div style={{ marginTop: 8, fontSize: 30, fontWeight: 800, color: "#1e40af" }}>SCORE: {score}</div>
+              <div style={{ fontSize: "clamp(30px, 9vw, 56px)", fontWeight: 900, color: "#1e3a8a", lineHeight: 1 }}>CRASHED!</div>
+              <div style={{ marginTop: 8, fontSize: "clamp(22px, 6.5vw, 42px)", fontWeight: 800, color: "#1e40af" }}>Final Score: {score}</div>
               <button
                 onClick={onRestart}
                 style={{
@@ -249,8 +236,8 @@ function HtmlScore({ score, speed, gameOver, onRestart }) {
                   background: "#3b82f6",
                   color: "white",
                   fontWeight: 800,
-                  fontSize: 16,
-                  padding: "10px 18px",
+                  fontSize: "clamp(14px, 3.5vw, 18px)",
+                  padding: "clamp(8px, 2.4vw, 12px) clamp(14px, 4vw, 22px)",
                   cursor: "pointer",
                 }}
               >
@@ -266,7 +253,12 @@ function HtmlScore({ score, speed, gameOver, onRestart }) {
 
 export default function GameScene() {
   return (
-    <Canvas shadows camera={{ fov: 55, position: [0, 5.5, 12] }}>
+    <Canvas
+      shadows
+      dpr={[1, 2]}
+      camera={{ fov: 62, position: [0, 5.5, 12] }}
+      style={{ width: "100vw", height: "100vh" }}
+    >
       <color attach="background" args={["#7aa9c7"]} />
       <fog attach="fog" args={["#7aa9c7", 25, 150]} />
       <GameWorld />
