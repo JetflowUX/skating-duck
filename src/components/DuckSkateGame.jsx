@@ -7,9 +7,11 @@ import {
   Float,
   Text,
   MeshDistortMaterial,
-  GradientTexture
+  GradientTexture,
+  useGLTF
 } from "@react-three/drei";
 import * as THREE from "three";
+import { DuckModel } from "./Duck";
 
 // --- Constants ---
 const ROAD_WIDTH = 12;
@@ -17,6 +19,113 @@ const GAME_SPEED_START = 15;
 const SPAWN_INTERVAL = 1.2; // seconds
 
 // --- Components ---
+
+function ProceduralSkateboard() {
+  return (
+    <group>
+      {/* Skateboard deck - red with texture */}
+      <mesh position={[0, 0, 0]}>
+        <boxGeometry args={[1.2, 0.15, 2.2]} />
+        <meshStandardMaterial 
+          color="#C41E3A" 
+          metalness={0.3} 
+          roughness={0.7}
+        />
+      </mesh>
+      
+      {/* Dark stripe on deck for grip */}
+      <mesh position={[0, 0.08, 0]}>
+        <boxGeometry args={[1.0, 0.02, 2.0]} />
+        <meshStandardMaterial color="#333333" metalness={0} roughness={1} />
+      </mesh>
+      
+      {/* Trucks - left front */}
+      <mesh position={[-0.4, -0.15, 0.7]}>
+        <boxGeometry args={[0.15, 0.15, 0.3]} />
+        <meshStandardMaterial color="#444444" metalness={0.6} roughness={0.4} />
+      </mesh>
+      
+      {/* Trucks - right front */}
+      <mesh position={[0.4, -0.15, 0.7]}>
+        <boxGeometry args={[0.15, 0.15, 0.3]} />
+        <meshStandardMaterial color="#444444" metalness={0.6} roughness={0.4} />
+      </mesh>
+      
+      {/* Trucks - left back */}
+      <mesh position={[-0.4, -0.15, -0.7]}>
+        <boxGeometry args={[0.15, 0.15, 0.3]} />
+        <meshStandardMaterial color="#444444" metalness={0.6} roughness={0.4} />
+      </mesh>
+      
+      {/* Trucks - right back */}
+      <mesh position={[0.4, -0.15, -0.7]}>
+        <boxGeometry args={[0.15, 0.15, 0.3]} />
+        <meshStandardMaterial color="#444444" metalness={0.6} roughness={0.4} />
+      </mesh>
+      
+      {/* Wheels - front left */}
+      <mesh position={[-0.4, -0.3, 0.7]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.25, 0.25, 0.15, 32]} />
+        <meshStandardMaterial 
+          color="#1E90FF" 
+          metalness={0.4} 
+          roughness={0.6}
+        />
+      </mesh>
+      
+      {/* Wheels - front right */}
+      <mesh position={[0.4, -0.3, 0.7]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.25, 0.25, 0.15, 32]} />
+        <meshStandardMaterial 
+          color="#1E90FF" 
+          metalness={0.4} 
+          roughness={0.6}
+        />
+      </mesh>
+      
+      {/* Wheels - back left */}
+      <mesh position={[-0.4, -0.3, -0.7]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.25, 0.25, 0.15, 32]} />
+        <meshStandardMaterial 
+          color="#1E90FF" 
+          metalness={0.4} 
+          roughness={0.6}
+        />
+      </mesh>
+      
+      {/* Wheels - back right */}
+      <mesh position={[0.4, -0.3, -0.7]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.25, 0.25, 0.15, 32]} />
+        <meshStandardMaterial 
+          color="#1E90FF" 
+          metalness={0.4} 
+          roughness={0.6}
+        />
+      </mesh>
+      
+      {/* Wheel hubs for detail */}
+      <mesh position={[-0.4, -0.3, 0.7]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.08, 0.08, 0.2, 32]} />
+        <meshStandardMaterial color="#333333" metalness={0.8} roughness={0.2} />
+      </mesh>
+      
+      <mesh position={[0.4, -0.3, 0.7]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.08, 0.08, 0.2, 32]} />
+        <meshStandardMaterial color="#333333" metalness={0.8} roughness={0.2} />
+      </mesh>
+      
+      <mesh position={[-0.4, -0.3, -0.7]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.08, 0.08, 0.2, 32]} />
+        <meshStandardMaterial color="#333333" metalness={0.8} roughness={0.2} />
+      </mesh>
+      
+      <mesh position={[0.4, -0.3, -0.7]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.08, 0.08, 0.2, 32]} />
+        <meshStandardMaterial color="#333333" metalness={0.8} roughness={0.2} />
+      </mesh>
+    </group>
+  );
+}
 
 function Duck({ targetX, isGameOver }) {
   const meshRef = useRef();
@@ -46,63 +155,26 @@ function Duck({ targetX, isGameOver }) {
 
   return (
     <group ref={meshRef} position={[0, 0.6, 0]}>
-      {/* Skateboard */}
-      <mesh ref={skateRef} position={[0, -0.4, 0]}>
-        <boxGeometry args={[1.2, 0.15, 2.2]} />
-        <meshStandardMaterial color="#ef4444" /> {/* Red deck */}
-        {/* Wheels */}
-        <mesh position={[-0.4, -0.15, 0.7]} rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.2, 0.2, 0.2, 16]} />
-          <meshStandardMaterial color="#3b82f6" /> {/* Blue wheels */}
-        </mesh>
-        <mesh position={[0.4, -0.15, 0.7]} rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.2, 0.2, 0.2, 16]} />
-          <meshStandardMaterial color="#3b82f6" />
-        </mesh>
-        <mesh position={[-0.4, -0.15, -0.7]} rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.2, 0.2, 0.2, 16]} />
-          <meshStandardMaterial color="#3b82f6" />
-        </mesh>
-        <mesh position={[0.4, -0.15, -0.7]} rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.2, 0.2, 0.2, 16]} />
-          <meshStandardMaterial color="#3b82f6" />
-        </mesh>
-      </mesh>
+      {/* Skateboard - Procedural Model */}
+      <group ref={skateRef} position={[0, -0.4, 0]}>
+        <ProceduralSkateboard />
+      </group>
 
-      {/* Duck Body */}
+      {/* Realistic Duck Model */}
       <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
-        <mesh position={[0, 0.4, 0]}>
-          <sphereGeometry args={[0.6, 32, 32]} />
-          <meshStandardMaterial color="#fbbf24" /> {/* Vibrant Yellow */}
-        </mesh>
-        {/* Head */}
-        <mesh position={[0, 1.1, 0.2]}>
-          <sphereGeometry args={[0.45, 32, 32]} />
-          <meshStandardMaterial color="#fbbf24" />
-        </mesh>
-        {/* Beak */}
-        <mesh position={[0, 1.0, 0.65]}>
-          <boxGeometry args={[0.3, 0.15, 0.4]} />
-          <meshStandardMaterial color="#f97316" />
-        </mesh>
-        {/* Helmet */}
-        <mesh position={[0, 1.3, 0.2]} rotation={[-0.2, 0, 0]}>
+        <group position={[0, -0.35, 0]} scale={100} rotation={[0, Math.PI, 0]}>
+          <DuckModel />
+        </group>
+
+        {/* Helmet (Adjusted for new head position) */}
+        <mesh position={[0, 1.2, 0.15]} rotation={[-0.2, 0, 0]}>
           <sphereGeometry args={[0.48, 32, 32, 0, Math.PI * 2, 0, Math.PI / 2]} />
           <meshStandardMaterial color="#2563eb" /> {/* Solid Blue */}
         </mesh>
         {/* Helmet Strap */}
-        <mesh position={[0, 1.05, 0.2]} rotation={[0, 0, 0]}>
+        <mesh position={[0, 0.95, 0.15]} rotation={[0, 0, 0]}>
           <torusGeometry args={[0.46, 0.03, 16, 32, Math.PI]} rotation={[0, 0, Math.PI]} />
           <meshStandardMaterial color="#111" />
-        </mesh>
-        {/* Eyes */}
-        <mesh position={[-0.15, 1.15, 0.58]}>
-          <sphereGeometry args={[0.05, 16, 16]} />
-          <meshStandardMaterial color="#000" />
-        </mesh>
-        <mesh position={[0.15, 1.15, 0.58]}>
-          <sphereGeometry args={[0.05, 16, 16]} />
-          <meshStandardMaterial color="#000" />
         </mesh>
       </Float>
     </group>
@@ -127,37 +199,37 @@ function Obstacle({ type, position, onHit }) {
       {type === "cone" && (
         <group>
           <mesh>
-            <coneGeometry args={[0.5, 1.2, 16]} />
+            <coneGeometry args={[1.0, 2.4, 16]} />
             <meshStandardMaterial color="#fb923c" />
           </mesh>
-          <mesh position={[0, -0.1, 0]}>
-            <cylinderGeometry args={[0.4, 0.45, 0.2, 16]} />
+          <mesh position={[0, -0.2, 0]}>
+            <cylinderGeometry args={[0.8, 0.9, 0.4, 16]} />
             <meshStandardMaterial color="white" />
           </mesh>
-          <mesh position={[0, -0.55, 0]}>
-            <boxGeometry args={[1, 0.1, 1]} />
+          <mesh position={[0, -1.1, 0]}>
+            <boxGeometry args={[2, 0.2, 2]} />
             <meshStandardMaterial color="#fb923c" />
           </mesh>
         </group>
       )}
       {type === "ice" && (
         <group>
-          <mesh position={[-0.3, 0, 0]} rotation={[0.2, 0, 0.2]}>
-            <coneGeometry args={[0.4, 1.2, 6]} />
+          <mesh position={[-0.6, 0, 0]} rotation={[0.2, 0, 0.2]}>
+            <coneGeometry args={[0.8, 2.4, 6]} />
             <meshStandardMaterial color="#bae6fd" transparent opacity={0.9} />
           </mesh>
-          <mesh position={[0.3, 0, 0.2]} rotation={[-0.2, 0, -0.1]}>
-            <coneGeometry args={[0.3, 0.8, 6]} />
+          <mesh position={[0.6, 0, 0.4]} rotation={[-0.2, 0, -0.1]}>
+            <coneGeometry args={[0.6, 1.6, 6]} />
             <meshStandardMaterial color="#bae6fd" transparent opacity={0.9} />
           </mesh>
-          <mesh position={[0, 0, -0.3]} rotation={[0.1, 0, 0]}>
-            <coneGeometry args={[0.3, 1.0, 6]} />
+          <mesh position={[0, 0, -0.6]} rotation={[0.1, 0, 0]}>
+            <coneGeometry args={[0.6, 2.0, 6]} />
             <meshStandardMaterial color="#bae6fd" transparent opacity={0.9} />
           </mesh>
         </group>
       )}
       {type === "penguin" && (
-        <group scale={1.2}>
+        <group scale={2.5}>
           <mesh position={[0, 0.3, 0]}>
             <sphereGeometry args={[0.4, 16, 16]} />
             <meshStandardMaterial color="#1e293b" />
@@ -184,19 +256,19 @@ function Obstacle({ type, position, onHit }) {
       )}
       {type === "barrel" && (
         <group>
-          <mesh position={[0, 0.5, 0]}>
-            <cylinderGeometry args={[0.5, 0.5, 1.2, 16]} />
+          <mesh position={[0, 1.0, 0]}>
+            <cylinderGeometry args={[1.0, 1.0, 2.4, 16]} />
             <meshStandardMaterial color="#78350f" />
           </mesh>
           {/* Snow top */}
-          <mesh position={[0, 1.15, 0]}>
-            <cylinderGeometry args={[0.55, 0.5, 0.2, 16]} />
+          <mesh position={[0, 2.3, 0]}>
+            <cylinderGeometry args={[1.1, 1.0, 0.4, 16]} />
             <meshStandardMaterial color="white" />
           </mesh>
         </group>
       )}
       {type === "fish" && (
-        <group rotation={[Math.PI / 2, 0, Math.random()]} scale={0.5}>
+        <group rotation={[Math.PI / 2, 0, Math.random()]} scale={1.2}>
           <mesh>
             <sphereGeometry args={[0.6, 16, 8]} />
             <meshStandardMaterial color="#94a3b8" />
